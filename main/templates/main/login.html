@@ -1,0 +1,70 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load widget_tweaks %}
+<div class="text-sm breadcrumbs">
+    <ul>
+        <h2>User Login</h2>
+    </ul>
+</div>
+<div class="container">
+    <div class="box">
+        <form method="post" action="{% url 'login' %}" target="_self">
+            {% csrf_token %}
+
+            <!-- Username field -->
+            <div class="form-group">
+                <!-- <label for="{{ form.username.id_for_label }}">Username</label> -->
+                {% render_field form.username class="custom-input" placeholder="Username" %}
+                <small class="helper-text">{{ form.username.help_text }}</small>
+                <small class="error">{{ form.username.errors }}</small>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <!-- <label for="{{ form.password1.id_for_label }}">Password</label> -->
+                {% render_field form.password class="custom-input" placeholder="Password" %}
+                <!-- <small class="helper-text">{{ form.password1.help_text }}</small> -->
+                <small class="error">{{ form.password.errors }}</small>
+            </div>
+            
+            <!-- Remember Me checkbox -->
+            <!-- <div class="form-group">
+                <label class="flex items-center">
+                    <input type="checkbox" name="remember_me" class="checkbox checkbox-sm">
+                    <span class="ml-2">Remember me</span>
+                </label>
+            </div> -->
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-accent btn-block my-2">Login</button>
+            </div>
+
+            <br>
+            
+            <div class="form-group">
+                <label class="flex items-center">
+                    <!-- <input type="checkbox" name="remember_me" class="checkbox checkbox-sm"> -->
+                    <span class="ml-2">Did not Signup yet ?</span>
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <label class="flex items-center">
+                    <input type="button" onclick="window.location.href='/register'" class="btn btn-accent btn-block my-2" value="register" name="register">
+                    <!-- <span class="ml-2">Did not Signup yet ?</span> -->
+                </label>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Ensure all form inputs have the custom-input class
+    document.addEventListener('DOMContentLoaded', function() {
+        const formInputs = document.querySelectorAll('input[type="text"], input[type="password"], input[type="email"]');
+        formInputs.forEach(input => {
+            input.classList.add('custom-input');
+        });
+    });
+</script>
+{% endblock %}

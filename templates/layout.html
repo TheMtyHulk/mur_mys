@@ -28,7 +28,11 @@
 
     <div class="wrapper">
         <div class="header noisy">
-            {% include 'main/navbar.html' %}
+            {% if request.user.is_authenticated %}
+                {% include 'after_login_navbar.html' %}
+            {% else %}
+                {% include 'navbar.html' %}
+            {% endif %}
         </div>
 
         <div class="content noisy">
@@ -50,7 +54,7 @@
     </div>
 
     
-    
+    <script src="{% static 'main/js/tw.js' %}"></script>
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {

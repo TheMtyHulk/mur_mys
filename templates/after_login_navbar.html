@@ -1,0 +1,27 @@
+<nav class="navbar">
+    <div class="nav-brand"><a href="/" target="_self">Mur_Mys</a></div>
+    <button class="nav-toggle" aria-label="toggle navigation">
+        <span class="hamburger"></span>
+    </button>
+    <div class="nav-menu">
+        <ul class="nav-list">
+            <!-- <li class="nav-item"><a href="/dashboard/" target="_self" class="nav-link">Dashboard</a></li> -->
+            <li class="nav-item"><a href="/profile/" target="_self" class="nav-link">Profile</a></li>
+            <!-- <li class="nav-item"><a href="/projects/" target="_self" class="nav-link">My Projects</a></li> -->
+            <li class="nav-item"><a href="/contact/" target="_self" class="nav-link">Contact</a></li>
+            <li class="nav-item"><a href="/logout/" target="_self" class="nav-link">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- JavaScript for navbar toggle functionality -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const navToggle = document.querySelector('.nav-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+        
+        navToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+        });
+    });
+</script>

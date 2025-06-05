@@ -152,6 +152,7 @@ input[type="text"] {
   min-width: 250px;
   text-align: center;
   transition: all 0.3s ease;
+  text-transform: none; /* Added to prevent text from displaying as uppercase */
 }
 
 input[type="text"]:focus {
@@ -183,6 +184,7 @@ input[type="text"]::placeholder {
   min-width: 250px !important;
   text-align: center !important;
   transition: all 0.3s ease !important;
+  text-transform: none !important; /* Added to prevent text from displaying as uppercase */
 }
 
 .custom-input:focus {
@@ -639,49 +641,54 @@ input[type="password"].custom-input {
   }
 }
 
+/* Strong override for all input fields to prevent uppercase text */
+input,
+input[type],
+input[type="text"],
+input[type="password"],
+input[type="email"],
+textarea,
+select,
+.custom-input {
+  text-transform: none !important;
+}
+
+/* Make sure the existing input styles remain but with the text-transform property */
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="text"] {
+  /* ...existing code... */
+  text-transform: none !important; /* Stronger override with !important */
+}
+
+/* ...existing code... */
+
+.custom-input {
+  /* ...existing code... */
+  text-transform: none !important; /* Stronger override with !important */
+}
+
+/* ...existing code... */
+
 /* Make form inputs styling stronger */
 .custom-input,
 input.custom-input,
 input[type="text"].custom-input,
 input[type="password"].custom-input,
 input[type="email"].custom-input {
-  background: #1c1b1d !important;
-  border-bottom: 3px inset rgba(255,255,255,.5) !important;
-  border-left: 3px inset rgba(255,255,255,.5) !important;
-  border-right: 3px inset rgba(0,0,0,.5) !important;
-  border-top: 3px inset rgba(0,0,0,.5) !important;
-  box-sizing: border-box !important;
-  color: #f1edee !important;
-  font-family: 'Nintendoid1' !important;
-  display: inline-block !important;
-  font-size: 1rem !important;
-  margin: 1rem !important;
-  padding: .5rem !important;
-  min-width: 250px !important;
-  text-align: center !important;
-  transition: all 0.3s ease !important;
-  -webkit-appearance: none !important;
-  -moz-appearance: none !important;
-  appearance: none !important;
+  /* ...existing code... */
+  text-transform: none !important; /* Stronger override with !important */
 }
 
-.custom-input:focus,
-input.custom-input:focus,
-input[type="text"].custom-input:focus,
-input[type="password"].custom-input:focus,
-input[type="email"].custom-input:focus {
-  outline: none !important;
-  border-color: #55E6C1 !important;
-  box-shadow: 0 0 8px rgba(85, 230, 193, 0.5) !important;
-}
+/* ...existing code... */
 
-.custom-input::placeholder,
-input.custom-input::placeholder,
-input[type="text"].custom-input::placeholder,
-input[type="password"].custom-input::placeholder,
-input[type="email"].custom-input::placeholder {
-  color: rgba(241, 237, 238, 0.6) !important;
-  text-shadow: 0.06rem 0 0.06rem #ea36af, -0.06rem 0 0.06rem #55E6C1 !important;
+/* Also check if any parent containers might be applying uppercase */
+form, 
+.form-group,
+.box,
+.content {
+  text-transform: none !important;
 }
 
 /* Error messages styling */

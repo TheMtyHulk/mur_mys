@@ -1,31 +1,41 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import redirect
 from .forms import LoginForm, UserRegistrationForm
-# Create your views here.
+from helpers.decorators import anonymous_required
+
+#index view
 def index(request):
-    """
-    Render the index page.
-    """
     return render(request, 'main/index.html')
 
 
+#login view
+def loginView(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
 
-# def loginView(request):
-#     if request.method == 'POST':
-#         form = LoginForm(request.POST)
-#         if form.is_valid():
-#             username = form.cleaned_data['username']
-#             password = form.cleaned_data['password']
-#             user = authenticate(request, username=username, password=password)
-#             if user is not None :
-#                 login(request, user)
-#             else:
-#                 form.add_error('password', 'Invalid username or password')
-#                 return redirect('main:login')
+            if user is not None:
+                if user.is_superuser:
+                    # User is active, log them in
+                    login(request, user)
+                    return redirect('admin:index')
+                
+                login(request, user)
+                return redirect('index')
+            else:
+                form.add_error('password', 'Invalid username or password')
+    else:
+        form = LoginForm()
+    return render(request, 'main/login.html', {'form': form})
 
-def register(request):
+#register user view
+@anonymous_required
+def registerView(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
@@ -35,3 +45,8 @@ def register(request):
     else:
         form = UserRegistrationForm()
     return render(request, 'main/register.html', {'form': form})
+
+#logout view
+def logoutView(request):    
+    logout(request)
+    return redirect('index')  # Redirect to the index page after logout
