@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Your page</title>
+  <base target="_blank">
+  <meta name="description" content="your-site">
+
+  {% load static %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="{% static 'main/css/style.css' %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://unpkg.com/typewriter-effect/dist/core.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+  <link rel="icon" href="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/apple/285/television_1f4fa.png">
+</head>
+
+
+
+<body>
+    <audio id="myAudio">
+        <source src="{% static 'main/audio/OST.mpeg' %}" type="audio/mpeg">
+        <source src="{% static 'main/audio/OST.mp3' %}" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div class="wrapper">
+        <div class="header noisy">
+            {% include 'main/navbar.html' %}
+        </div>
+
+        <div class="content noisy">
+          <!-- Start content -->
+            {% block content %}
+            {% endblock %}
+          <!-- <button onclick="style.display = 'none'; playAudio()" type="button">Start!</button> -->
+
+      
+           
+         
+          <!-- End content -->
+        </div>
+      
+       
+        <!-- <div class="footer noisy">
+        </div> -->
+
+    </div>
+
+    
+    
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const navToggle = document.querySelector('.nav-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+        
+        navToggle.addEventListener('click', () => {
+          navMenu.classList.toggle('active');
+        });
+        
+        // Close the menu when a link is clicked
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+          link.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+          });
+        });
+      });
+    </script>
+
+</body>
+
+</html>
