@@ -68,7 +68,7 @@ from .models import Suspects, Investigators
 def get_suspects_by_murder(request):
     murder_id = request.GET.get('murder_id')
     if murder_id:
-        suspects_list = suspects.objects.filter(murders_id=murder_id).values('id', 'name')
+        suspects_list = Suspects.objects.filter(murders_id=murder_id).values('id', 'name')
         return JsonResponse({'suspects': list(suspects_list)})
     return JsonResponse({'suspects': []})
 
@@ -76,6 +76,6 @@ def get_suspects_by_murder(request):
 def get_investigators_by_murder(request):
     murder_id = request.GET.get('murder_id')
     if murder_id:
-        investigators_list = investigators.objects.filter(murders_id=murder_id).values('id', 'name')
+        investigators_list = Investigators.objects.filter(murders_id=murder_id).values('id', 'name')
         return JsonResponse({'investigators': list(investigators_list)})
     return JsonResponse({'investigators': []})
