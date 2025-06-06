@@ -57,3 +57,25 @@ def logoutView(request):
 @contactLoginRequired
 def contactView(request):
     pass
+
+
+# test view
+from django.http import JsonResponse
+from django.contrib.admin.views.decorators import staff_member_required
+from .models import suspects, investigators
+
+@staff_member_required
+def get_suspects_by_murder(request):
+    murder_id = request.GET.get('murder_id')
+    if murder_id:
+        suspects_list = suspects.objects.filter(murders_id=murder_id).values('id', 'name')
+        return JsonResponse({'suspects': list(suspects_list)})
+    return JsonResponse({'suspects': []})
+
+@staff_member_required
+def get_investigators_by_murder(request):
+    murder_id = request.GET.get('murder_id')
+    if murder_id:
+        investigators_list = investigators.objects.filter(murders_id=murder_id).values('id', 'name')
+        return JsonResponse({'investigators': list(investigators_list)})
+    return JsonResponse({'investigators': []})
