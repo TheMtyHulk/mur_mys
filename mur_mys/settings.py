@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
+
+    # Third-party apps
+    'django_cleanup',
     'widget_tweaks',  # For custom widget styles
 ]
 
@@ -109,13 +112,17 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+LOGIN_URL = 'index'  
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    os.path.join(BASE_DIR, "main/static"),
+    os.path.join(BASE_DIR, "media"),
+    os.path.join(BASE_DIR, "static"),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 

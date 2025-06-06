@@ -6,9 +6,22 @@
     <div class="nav-menu">
         <ul class="nav-list">
             <li class="nav-item"><a href="/login" target="_self" class="nav-link">Login</a></li>
-            <li class="nav-item"><a href="/register/" target="_self" class="nav-link">Signup</a></li>
+            <li class="nav-item"><a href="/register" target="_self" class="nav-link">Signup</a></li>
             <!-- <li class="nav-item"><a href="#" class="nav-link">Projects</a></li> -->
-            <li class="nav-item"><a href="#" target="_self" class="nav-link">Contact</a></li>
+            <li class="nav-item"><a href="/contact" onclick="loginRequired()" target="_self" class="nav-link">Contact</a></li>
         </ul>
     </div>
 </nav>
+
+<script>
+    function loginRequired() {
+        {% if request.user.is_authenticated %}
+            // If the user is authenticated, redirect to the contact page
+            window.location.href = '/contact';
+        {% else %}
+            // If the user is not authenticated, show an alert
+            alert("You need to be logged in to contact");
+        {% endif %}
+        
+    }
+</script>

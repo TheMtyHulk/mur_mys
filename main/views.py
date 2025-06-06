@@ -3,7 +3,9 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import redirect
 from .forms import LoginForm, UserRegistrationForm
-from helpers.decorators import anonymous_required
+from helpers.decorators import anonymousRequired,contactLoginRequired
+from django.contrib.auth.decorators import login_required
+
 
 #index view
 def index(request):
@@ -34,7 +36,7 @@ def loginView(request):
     return render(request, 'main/login.html', {'form': form})
 
 #register user view
-@anonymous_required
+@anonymousRequired
 def registerView(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
@@ -47,6 +49,11 @@ def registerView(request):
     return render(request, 'main/register.html', {'form': form})
 
 #logout view
+@login_required
 def logoutView(request):    
     logout(request)
     return redirect('index')  # Redirect to the index page after logout
+
+@contactLoginRequired
+def contactView(request):
+    pass
