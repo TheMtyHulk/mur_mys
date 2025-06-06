@@ -6,10 +6,10 @@ class Murders(models.Model):
     description = models.TextField()
     image = models.ImageField(upload_to='murders/')
     date= models.DateTimeField(blank=True, null=True)
-
+    short_description = models.CharField(max_length=255, blank=True, null=True)
     def __str__(self):
         return self.name
-class suspects(models.Model):
+class Suspects(models.Model):
     murders= models.ForeignKey(Murders, on_delete=models.CASCADE, related_name='suspects')
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
@@ -18,7 +18,7 @@ class suspects(models.Model):
     def __str__(self):
         return self.name
 
-class investigators(models.Model):
+class Investigators(models.Model):
     murders = models.ForeignKey(Murders, on_delete=models.CASCADE, related_name='investigations')
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
@@ -27,14 +27,16 @@ class investigators(models.Model):
     def __str__(self):
         return self.name
 
-class interviews(models.Model):
+class Interviews(models.Model):
     murders = models.ForeignKey(Murders, on_delete=models.CASCADE, related_name='interviews')
-    suspects = models.ForeignKey(suspects, on_delete=models.CASCADE, related_name='interviews')
-    investigators = models.ForeignKey(investigators, on_delete=models.CASCADE, related_name='interviews')
+    suspects = models.ForeignKey(Suspects, on_delete=models.CASCADE, related_name='interviews')
+    investigators = models.ForeignKey(Investigators, on_delete=models.CASCADE, related_name='interviews')
     content = models.TextField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
     image = models.ImageField(upload_to='interviews/', null=True, blank=True)
     def __str__(self):
-        return f"Interview with {self.suspects.name} by {self.investigators.name}"
+        suspect_name = self.suspects.name if self.suspects else "Unknown"
+        investigator_name = self.investigators.name if self.investigators else "Unknown"
+        return f"Interview with {suspect_name} by {investigator_name}"
 
     

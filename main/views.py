@@ -62,7 +62,7 @@ def contactView(request):
 # test view
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
-from .models import suspects, investigators
+from .models import Suspects, Investigators
 
 @staff_member_required
 def get_suspects_by_murder(request):
