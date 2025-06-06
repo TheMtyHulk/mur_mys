@@ -130,8 +130,6 @@ button {
 	width: auto;
 }
 
-/* Add after button styling, around line ~200-250 */
-
 /* Text input styling */
 input[type="text"],
 input[type="password"],
@@ -144,15 +142,22 @@ input[type="text"] {
   border-top: 3px inset rgba(0,0,0,.5);
   box-sizing: border-box;
   color: #f1edee;
-  font-family: 'Nintendoid1';
+  font-family: 'Courier New', 'Monaco', 'Menlo', 'DejaVu Sans Mono', monospace !important;
   display: inline-block;
-  font-size: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold !important;
   margin: 1rem;
   padding: .5rem;
   min-width: 250px;
   text-align: center;
   transition: all 0.3s ease;
-  text-transform: none; /* Added to prevent text from displaying as uppercase */
+  text-transform: none !important;
+  -webkit-text-transform: none !important;
+  -moz-text-transform: none !important;
+  -ms-text-transform: none !important;
+  font-variant: normal !important;
+  font-style: normal !important;
+  letter-spacing: 0.05em;
 }
 
 input[type="text"]:focus {
@@ -176,15 +181,22 @@ input[type="text"]::placeholder {
   border-top: 3px inset rgba(0,0,0,.5) !important;
   box-sizing: border-box !important;
   color: #f1edee !important;
-  font-family: 'Nintendoid1' !important;
+  font-family: 'Courier New', 'Monaco', 'Menlo', 'DejaVu Sans Mono', monospace !important;
   display: inline-block !important;
-  font-size: 1rem !important;
+  font-size: 1.2rem !important;
+  font-weight: bold !important;
   margin: 1rem !important;
   padding: .5rem !important;
   min-width: 250px !important;
   text-align: center !important;
   transition: all 0.3s ease !important;
-  text-transform: none !important; /* Added to prevent text from displaying as uppercase */
+  text-transform: none !important;
+  -webkit-text-transform: none !important;
+  -moz-text-transform: none !important;
+  -ms-text-transform: none !important;
+  font-variant: normal !important;
+  font-style: normal !important;
+  letter-spacing: 0.05em !important;
 }
 
 .custom-input:focus {
@@ -200,8 +212,9 @@ input[type="text"]::placeholder {
 
 /* Make sure all password fields get styled too */
 input[type="password"].custom-input {
-  font-family: 'Nintendoid1' !important;
-  letter-spacing: 0.2em !important;
+  font-family: 'Courier New', 'Monaco', 'Menlo', 'DejaVu Sans Mono', monospace !important;
+  font-weight: bold !important;
+  letter-spacing: 0.05em !important;
 }
 
 /* ...navbar and card styles follow... */
@@ -321,7 +334,7 @@ input[type="password"].custom-input {
       height: auto;
       width: 2%;
       margin: 0;
-      border-radius:0 60px 60px 0;
+      border-radius: 0 60px 60px 0;
   }
 
   h1 {
@@ -353,10 +366,19 @@ input[type="password"].custom-input {
   	width: auto;
   }
   input[type="text"] {
-    font-size: 0.9rem;
+    font-family: 'Courier New', 'Monaco', 'Menlo', 'DejaVu Sans Mono', monospace !important;
+    font-size: 1rem;
+    font-weight: bold !important;
     min-width: 200px;
     padding: 0.4rem;
     margin: 0.8rem;
+    text-transform: none !important;
+    -webkit-text-transform: none !important;
+    -moz-text-transform: none !important;
+    -ms-text-transform: none !important;
+    font-variant: normal !important;
+    font-style: normal !important;
+    letter-spacing: 0.05em;
   }
 }
 
@@ -473,10 +495,19 @@ input[type="password"].custom-input {
 /* Mobile View */
 @media all and (max-width: 480px) {
     input[type="text"] {
-    font-size: 0.9rem;
+    font-family: 'Courier New', 'Monaco', 'Menlo', 'DejaVu Sans Mono', monospace !important;
+    font-size: 1rem;
+    font-weight: bold !important;
     min-width: 200px;
     padding: 0.4rem;
     margin: 0.8rem;
+    text-transform: none !important;
+    -webkit-text-transform: none !important;
+    -moz-text-transform: none !important;
+    -ms-text-transform: none !important;
+    font-variant: normal !important;
+    font-style: normal !important;
+    letter-spacing: 0.05em;
   }
   .header {
     width: auto;
@@ -518,6 +549,8 @@ input[type="password"].custom-input {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.5s ease;
+    z-index: 999;
+    position: relative;
   }
   
   .nav-menu.active {
@@ -539,6 +572,34 @@ input[type="password"].custom-input {
   
   .wrapper {
     flex-direction: column;
+  }
+  
+  /* Fix for card content visibility */
+  .card-container {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .card {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .card-content {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .card p {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+  }
+  
+  /* Ensure content section has proper stacking */
+  .content {
+    position: relative;
+    z-index: 1;
   }
 }
 
@@ -677,8 +738,29 @@ input.custom-input,
 input[type="text"].custom-input,
 input[type="password"].custom-input,
 input[type="email"].custom-input {
-  /* ...existing code... */
-  text-transform: none !important; /* Stronger override with !important */
+  background: #1c1b1d !important;
+  border-bottom: 3px inset rgba(255,255,255,.5) !important;
+  border-left: 3px inset rgba(255,255,255,.5) !important;
+  border-right: 3px inset rgba(0,0,0,.5) !important;
+  border-top: 3px inset rgba(0,0,0,.5) !important;
+  box-sizing: border-box !important;
+  color: #f1edee !important;
+  font-family: 'Courier New', 'Monaco', 'Menlo', 'DejaVu Sans Mono', monospace !important;
+  display: inline-block !important;
+  font-size: 1.2rem !important;
+  font-weight: bold !important;
+  margin: 1rem !important;
+  padding: .5rem !important;
+  min-width: 250px !important;
+  text-align: center !important;
+  transition: all 0.3s ease !important;
+  text-transform: none !important;
+  -webkit-text-transform: none !important;
+  -moz-text-transform: none !important;
+  -ms-text-transform: none !important;
+  font-variant: normal !important;
+  font-style: normal !important;
+  letter-spacing: 0.05em !important;
 }
 
 /* ...existing code... */
