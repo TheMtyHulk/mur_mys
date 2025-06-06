@@ -2,13 +2,52 @@
 {% block content %}
 {% load widget_tweaks %}
 <h1>./Welcome</h1>
-          
 
-          <!-- <button onclick="style.display = 'none'; playAudio()" type="button">Start!</button> -->
+<div class="card-container">
 
-          
-          <div id="app"></div>
-            <a href="#">
-              <i class="fa fa-github-alt fa-2x"></i>
-            </a>
+  <!-- Murders Cards -->
+  {% for murder in murders %}
+  <div class="card noisy">
+    <div class="card-content">
+      {% if murder.image %}
+        <div class="card-image">
+          <img src="{{ murder.image.url }}" alt="{{ murder.name }}" 
+            style="width: 100%; height: 200px; object-fit: cover; 
+                border-radius: 8px; display: block; 
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+                transition: transform 0.3s ease; 
+                margin-bottom: 10px;">
+        </div>
+      {% endif %}
+      <div class="card-header" style="text-align: center;">
+        <h3>{{ murder.name|default:"Murder Case" }}</h3>
+      </div>
+      <p>
+        <strong>Date:</strong> {{ murder.date|default:"Unknown" }}<br>
+      </p>
+      {% if murder.short_description %}
+        <p>{{ murder.short_description }}</p>
+      {% endif %}
+      <a href="#" class="card-btn">View Details</a>
+    </div>
+  </div>
+  {% empty %}
+
+  
+  <div class="card noisy">
+    <div class="card-content">
+      <div class="card-header">
+        <h3>No Cases Found</h3>
+      </div>
+      <p>No murder cases are currently available in the database.</p>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+<div id="app"></div>
+<a href="#">
+  <i class="fa fa-github-alt fa-2x"></i>
+</a>
 {% endblock %}

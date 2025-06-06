@@ -5,11 +5,13 @@ from django.shortcuts import redirect
 from .forms import LoginForm, UserRegistrationForm
 from helpers.decorators import anonymousRequired,contactLoginRequired
 from django.contrib.auth.decorators import login_required
-
+from .models import Murders
 
 #index view
+#index view
 def index(request):
-    return render(request, 'main/index.html')
+    murders = Murders.objects.all()  
+    return render(request, 'main/index.html', {'murders': murders}) 
 
 
 #login view
