@@ -93,7 +93,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mur_mys.wsgi.application'
 
 from helpers.db_dict import parse_pg_conn_str
-conndict= parse_pg_conn_str(os.getenv('AZURE_POSTGRESQL_CONNECTIONSTRING'))
+conndict= parse_pg_conn_str(os.getenv('AZURE_POSTGRESQL_CONNECTIONSTRING',''))
 # Database
 DATABASES = {
     'default': {
