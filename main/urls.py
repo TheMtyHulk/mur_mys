@@ -15,4 +15,6 @@ urlpatterns = [
     # Ajax URLs
     path('ajax/get-suspects/', views.get_suspects_by_murder, name='get_suspects_by_murder'),
     path('ajax/get-investigators/', views.get_investigators_by_murder, name='get_investigators_by_murder'),
+    path('ajax/get-suspect-details/<int:suspect_id>/', views.get_suspect_details, name='get_suspect_details'),
+    path('ajax/get-investigator-details/<int:investigator_id>/', views.get_investigator_details, name='get_investigator_details'),
 ]    

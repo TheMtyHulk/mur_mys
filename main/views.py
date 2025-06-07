@@ -70,8 +70,9 @@ def suspectsProfileView(request,murder_id):
     return render(request,'main/suspect_profile.html',{'murder':murder})
 
 def investigatorsProfileView(request,murder_id):
-    return HttpResponse('test')
-    pass
+    murder=get_object_or_404(Murders,id=murder_id)
+    return render(request,'main/investigator_profile.html',{'murder':murder})
+    
 
 def interviewsView(request,murder_id):
     return HttpResponse('test')
@@ -98,4 +99,38 @@ def get_investigators_by_murder(request):
         investigators_list = Investigators.objects.filter(murders_id=murder_id).values('id', 'name')
         return JsonResponse({'investigators': list(investigators_list)})
     return JsonResponse({'investigators': []})
+
+
+def get_suspect_details(request, suspect_id):
+    try:
+        suspect = get_object_or_404(Suspects, id=suspect_id)
+        data = {
+            'success': True,
+            'suspect': {
+                'name': suspect.name,
+                'age': suspect.age,
+                'description': suspect.description,
+                'image': suspect.image.url if suspect.image else None
+            }
+        }
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
+
+def get_investigator_details(request, investigator_id):
+    try:
+        investigator = get_object_or_404(Investigators, id=investigator_id)
+        data = {
+            'success': True,
+            'investigator': {
+                'name': investigator.name,
+                'age': investigator.age,
+                'description': investigator.description,
+                'image': investigator.image.url if investigator.image else None
+            }
+        }
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 

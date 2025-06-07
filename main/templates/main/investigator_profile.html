@@ -2,30 +2,30 @@
 {% block content %}
 {% load widget_tweaks %}
 <div class="murder-case-detail">
-    <div class="suspects-section">
-            <h2>Suspects ({{ murder.suspects.count }})</h2>
-            {% if murder.suspects.exists %}
-                <div class="suspects-grid">
-                    {% for suspect in murder.suspects.all %}
-                    <div class="suspect-card card noisy">
+    <div class="investigators-section">
+            <h2>Investigators ({{ murder.investigations.count }})</h2>
+            {% if murder.investigations.exists %}
+                <div class="investigators-grid">
+                    {% for investigator in murder.investigations.all %}
+                    <div class="investigator-card card noisy">
                         <div class="card-content">
-                            {% if suspect.image %}
-                                <div class="suspect-image">
-                                    <img src="{{ suspect.image.url }}" alt="{{ suspect.name }}" 
+                            {% if investigator.image %}
+                                <div class="investigator-image">
+                                    <img src="{{ investigator.image.url }}" alt="{{ investigator.name }}" 
                                         style="width: 100%; height: 200px; object-fit: cover; 
                                                 border-radius: 8px; margin-bottom: 10px;">
                                 </div>
                             {% endif %}
                             
-                            <h3>{{ suspect.name }}</h3>
+                            <h3>{{ investigator.name }}</h3>
 
-                            {% if suspect.age %}
-                                <p><strong>Age:</strong> {{ suspect.age }}</p>
+                            {% if investigator.age %}
+                                <p><strong>Age:</strong> {{ investigator.age }}</p>
                             {% endif %}
                             
                             <div class="case-navigation">
                                 <a href="#" class="card-btn view-details-btn" 
-                                   data-suspect-id="{{ suspect.id }}" target="_self">
+                                   data-investigator-id="{{ investigator.id }}" target="_self">
                                     View Details
                                 </a>
                             </div>
@@ -35,16 +35,16 @@
                     {% endfor %}
                 </div> 
             {% else %}
-                <p>No suspects identified yet.</p>
+                <p>No investigators assigned yet.</p>
             {% endif %}
         </div>
 </div>
 
 <!-- Modal Popup -->
-<div id="suspectModal" class="modal">
+<div id="investigatorModal" class="modal">
     <div class="modal-content card noisy">
         <div class="modal-header">
-            <h2 id="modalTitle">Suspect Details</h2>
+            <h2 id="modalTitle">Investigator Details</h2>
             <span class="close">&times;</span>
         </div>
         <div class="modal-body">
@@ -60,7 +60,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('suspectModal');
+    const modal = document.getElementById('investigatorModal');
     const modalContent = document.getElementById('modalContent');
     const modalTitle = document.getElementById('modalTitle');
     const closeBtn = document.querySelector('.close');
@@ -70,35 +70,40 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.view-details-btn').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            const suspectId = this.getAttribute('data-suspect-id');
-            openModal(suspectId);
+            const investigatorId = this.getAttribute('data-investigator-id');
+            openModal(investigatorId);
         });
     });
     
-    function openModal(suspectId) {
+    function openModal(investigatorId) {
         modal.style.display = 'block';
-        modalContent.innerHTML = '<div class="loading"><p>Loading suspect details...</p></div>';
+        modalContent.innerHTML = '<div class="loading"><p>Loading investigator details...</p></div>';
         modalTitle.textContent = 'Loading...';
         
-        // Fetch suspect details
-        loadSuspectDescription(suspectId);
+        // Fetch investigator details
+        loadInvestigatorDescription(investigatorId);
     }
     
-    function loadSuspectDescription(suspectId) {
-        fetch(`/ajax/get-suspect-details/${suspectId}/`)
+    function loadInvestigatorDescription(investigatorId) {
+        fetch(`/ajax/get-investigator-details/${investigatorId}/`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    modalTitle.textContent = `${data.suspect.name} - Suspect Profile`;
+                    modalTitle.textContent = `${data.investigator.name} - Investigator Profile`;
                     modalContent.innerHTML = `
-                        <div class="suspect-profile">
-                            
-                            <div class="suspect-info">
-                                
+                        <div class="investigator-profile">
+                            {% comment %} ${data.investigator.image ? `
+                                <div class="modal-image">
+                                    <img src="${data.investigator.image}" alt="${data.investigator.name}" 
+                                         style="width: 100%; max-width: 300px; height: 250px; object-fit: cover; 
+                                                border-radius: 8px; margin: 0 auto 20px auto; display: block;">
+                                </div>
+                            ` : ''} {% endcomment %}
+                            <div class="investigator-info">
                                 <div class="description-section">
                                     <h4>Description:</h4>
                                     <div class="description-text">
-                                        ${data.suspect.description ? data.suspect.description.replace(/\n/g, '<br>') : 'No description available.'}
+                                        ${data.investigator.description ? data.investigator.description.replace(/\n/g, '<br>') : 'No description available.'}
                                     </div>
                                 </div>
                             </div>
@@ -106,13 +111,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     `;
                 } else {
                     modalTitle.textContent = 'Error';
-                    modalContent.innerHTML = '<div class="error"><p>Error loading suspect details.</p></div>';
+                    modalContent.innerHTML = '<div class="error"><p>Error loading investigator details.</p></div>';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 modalTitle.textContent = 'Error';
-                modalContent.innerHTML = '<div class="error"><p>Failed to load suspect details.</p></div>';
+                modalContent.innerHTML = '<div class="error"><p>Failed to load investigator details.</p></div>';
             });
     }
     
@@ -149,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
     padding: 20px;
 }
 
-.suspects-grid {
+.investigators-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
@@ -224,18 +229,18 @@ document.addEventListener('DOMContentLoaded', function() {
     color: #fff;
 }
 
-/* Suspect Profile in Modal */
-.suspect-profile {
+/* Investigator Profile in Modal */
+.investigator-profile {
     text-align: center;
 }
 
-.suspect-info h3 {
+.investigator-info h3 {
     color: #fff;
     font-size: 1.5em;
     margin-bottom: 15px;
 }
 
-.suspect-info p {
+.investigator-info p {
     margin: 10px 0;
     font-size: 1.1em;
 }
@@ -300,7 +305,7 @@ h2 {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .suspects-grid {
+    .investigators-grid {
         grid-template-columns: 1fr;
     }
     
