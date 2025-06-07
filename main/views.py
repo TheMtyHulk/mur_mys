@@ -2,10 +2,11 @@ from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import redirect
-from .forms import LoginForm, UserRegistrationForm
+from .forms import LoginForm, UserRegistrationForm, ProfileUpdateForm
 from helpers.decorators import anonymousRequired,contactLoginRequired
 from django.contrib.auth.decorators import login_required
 from .models import Suspects, Investigators,Murders,Interviews
+from django.contrib import messages
 
 #index view
 #index view
@@ -286,3 +287,24 @@ def clear_chat(request):
             return JsonResponse({'success': False, 'error': 'Chat room not found'})
     
     return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+@login_required
+def profileView(request):
+    edit_mode = request.GET.get('edit') == 'true'
+    
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('profile')
+        else:
+            edit_mode = True  # Stay in edit mode if there are errors
+    else:
+        form = ProfileUpdateForm(instance=request.user)
+    
+    context = {
+        'form': form,
+        'edit_mode': edit_mode,
+    }
+    return render(request, 'main/profile.html', context)
