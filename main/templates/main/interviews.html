@@ -1,0 +1,367 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load widget_tweaks %}
+
+<div class="murder-case-detail">
+    <!-- Page Header - matching investigator profile style -->
+    <div class="interviews-section">
+        <h2>Interviews for {{ murder.name }} ({{ interviews.count }})</h2>
+        
+        {% if interviews.exists %}
+            <!-- Interview Navigation -->
+            <div class="interview-navigation">
+                <button id="prevBtn" class="card-btn nav-btn" disabled>
+                    ← Previous
+                </button>
+                <span id="interviewCounter" class="interview-counter">
+                    1 of {{ interviews.count }}
+                </span>
+                <button id="nextBtn" class="card-btn nav-btn">
+                    Next →
+                </button>
+            </div>
+
+            <!-- Interview Content Container -->
+            <div id="interviewContainer" class="interview-content-section">
+                <div id="interviewContent">
+                    <!-- Dynamic content will be loaded here -->
+                    <div class="loading">
+                        <p>Loading interview...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interview List (Hidden - for navigation) -->
+            <div id="interviewData" style="display: none;">
+                {% for interview in interviews %}
+                    <div class="interview-data" data-interview-id="{{ interview.id }}"></div>
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <p>No interviews have been conducted for this case yet.</p>
+        {% endif %}
+    </div>
+
+    <br><br>
+    <!-- Navigation -->
+    <div class="case-navigation">
+        <a href="{% url 'solve_murder' murder.id %}" class="card-btn" target="_self">← Back to Case</a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const interviews = document.querySelectorAll('.interview-data');
+    const totalInterviews = interviews.length;
+    
+    console.log('Total interviews found:', totalInterviews); // Debug log
+    
+    if (totalInterviews === 0) {
+        console.log('No interviews found');
+        return;
+    }
+    
+    let currentIndex = 0;
+    
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const counter = document.getElementById('interviewCounter');
+    const contentContainer = document.getElementById('interviewContent');
+    
+    // Load first interview
+    loadInterview(currentIndex);
+    
+    // Previous button click
+    prevBtn.addEventListener('click', function() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            loadInterview(currentIndex);
+        }
+    });
+    
+    // Next button click
+    nextBtn.addEventListener('click', function() {
+        if (currentIndex < totalInterviews - 1) {
+            currentIndex++;
+            loadInterview(currentIndex);
+        }
+    });
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'ArrowLeft' && currentIndex > 0) {
+            currentIndex--;
+            loadInterview(currentIndex);
+        } else if (event.key === 'ArrowRight' && currentIndex < totalInterviews - 1) {
+            currentIndex++;
+            loadInterview(currentIndex);
+        }
+    });
+    
+    function loadInterview(index) {
+        console.log('Loading interview at index:', index); // Debug log
+        
+        // Show loading
+        contentContainer.innerHTML = '<div class="loading"><p>Loading interview...</p></div>';
+        
+        // Update counter
+        counter.textContent = `${index + 1} of ${totalInterviews}`;
+        
+        // Update button states
+        prevBtn.disabled = (index === 0);
+        nextBtn.disabled = (index === totalInterviews - 1);
+        
+        // Update button opacity
+        prevBtn.style.opacity = (index === 0) ? '0.5' : '1';
+        nextBtn.style.opacity = (index === totalInterviews - 1) ? '0.5' : '1';
+        
+        // Get interview ID
+        const interviewId = interviews[index].getAttribute('data-interview-id');
+        console.log('Interview ID:', interviewId); // Debug log
+        
+        // Fetch interview details
+        fetch(`/ajax/get-interview-details/${interviewId}/`)
+            .then(response => {
+                console.log('Response status:', response.status); // Debug log
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Interview data:', data); // Debug log
+                if (data.success) {
+                    displayInterview(data.interview);
+                } else {
+                    console.error('API returned error:', data.error);
+                    contentContainer.innerHTML = '<div class="error"><p>Error: ' + (data.error || 'Unknown error') + '</p></div>';
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                contentContainer.innerHTML = '<div class="error"><p>Failed to load interview: ' + error.message + '</p></div>';
+            });
+    }
+    
+    function displayInterview(interview) {
+        console.log('Displaying interview:', interview); // Debug log
+        
+        contentContainer.innerHTML = `
+            <div class="interview-details">
+                <!-- Interview Header Section -->
+                <div class="interview-header-section">
+                    <h2>Interview Details</h2>
+                    <div class="interview-info">
+                        <p><strong>Suspect:</strong> ${interview.suspect_name}</p>
+                        <p><strong>Investigator:</strong> ${interview.investigator_name}</p>
+                        <p><strong>Date:</strong> ${interview.date}</p>
+                    </div>
+                </div>
+                
+                ${interview.image ? `
+                    <br>
+                    <!-- Interview Image Section -->
+                    <div class="interview-image-section">
+                        <h2>Evidence</h2>
+                        <div class="image-container">
+                            <img src="${interview.image}" alt="Interview Evidence" 
+                                 style="width: 100%; max-width: 600px; height: 400px; object-fit: cover; 
+                                        border-radius: 8px; display: block; margin: 20px auto;
+                                        box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <br>
+                <!-- Interview Transcript Section -->
+                <div class="interview-transcript-section">
+                    <h2>Interview Transcript</h2>
+                    <div class="transcript-content">
+                        ${interview.content ? interview.content.replace(/\n/g, '<br>') : 'No interview transcript available.'}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+});
+</script>
+
+<style>
+.murder-case-detail {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.interviews-section {
+    /* Same styling as investigators-section */
+}
+
+.interview-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+}
+
+.interview-counter {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #fff;
+    background: rgba(0, 123, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: 2px solid rgba(0, 123, 255, 0.4);
+}
+
+.nav-btn {
+    padding: 12px 24px;
+    font-size: 1.1em;
+    min-width: 140px;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:disabled {
+    cursor: not-allowed;
+    background: #666 !important;
+    color: #999 !important;
+}
+
+.nav-btn:disabled:hover {
+    transform: none;
+    background: #666 !important;
+}
+
+.interview-content-section {
+    margin: 30px 0;
+    min-height: 500px;
+}
+
+.interview-header-section,
+.interview-image-section,
+.interview-transcript-section {
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+}
+
+.interview-info {
+    margin-top: 15px;
+}
+
+.interview-info p {
+    font-size: 1.2em;
+    margin: 10px 0;
+    color: #fff;
+}
+
+.transcript-content {
+    line-height: 1.6;
+    font-size: 1.1em;
+    color: #fff;
+    background: rgba(0,0,0,0.2);
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+    min-height: 200px;
+    margin-top: 15px;
+}
+
+.loading, .error {
+    text-align: center;
+    padding: 80px 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    margin: 30px 0;
+}
+
+.loading p, .error p {
+    font-size: 1.3em;
+    margin: 0;
+    color: #fff;
+}
+
+.error p {
+    color: #ff6b6b;
+}
+
+.case-navigation {
+    text-align: center;
+    margin: 40px 0;
+}
+
+h2 {
+    color: #fff;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+    margin: 30px 0 20px 0;
+}
+
+/* Loading animation */
+.loading {
+    animation: pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+    from { opacity: 1; }
+    to { opacity: 0.7; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .interview-navigation {
+        flex-direction: column;
+        gap: 20px;
+        padding: 15px;
+    }
+    
+    .interview-counter {
+        order: -1;
+        font-size: 1.1em;
+        padding: 8px 16px;
+    }
+    
+    .nav-btn {
+        min-width: 120px;
+        padding: 10px 20px;
+        font-size: 1em;
+    }
+    
+    .interview-info p {
+        font-size: 1em;
+    }
+    
+    .transcript-content {
+        padding: 15px;
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .murder-case-detail {
+        padding: 10px;
+    }
+    
+    .interview-navigation {
+        padding: 10px;
+    }
+    
+    .nav-btn {
+        min-width: 100px;
+        padding: 8px 16px;
+        font-size: 0.9em;
+    }
+    
+    .interview-counter {
+        font-size: 1em;
+        padding: 6px 12px;
+    }
+}
+</style>
+
+{% endblock %}
