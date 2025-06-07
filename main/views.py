@@ -1,11 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import redirect
 from .forms import LoginForm, UserRegistrationForm
 from helpers.decorators import anonymousRequired,contactLoginRequired
 from django.contrib.auth.decorators import login_required
-from .models import Murders
+from .models import Suspects, Investigators,Murders
 
 #index view
 #index view
@@ -61,10 +61,27 @@ def contactView(request):
     pass
 
 
-# test view
+def solveMurderView(request,murder_id):
+    murder = get_object_or_404(Murders, id=murder_id)
+    return render(request,'main/solve_murder.html',{'murder':murder})
+
+def suspectsProfileView(request,murder_id):
+    murder=get_object_or_404(Murders,id=murder_id)
+    return render(request,'main/suspect_profile.html',{'murder':murder})
+
+def investigatorsProfileView(request,murder_id):
+    return HttpResponse('test')
+    pass
+
+def interviewsView(request,murder_id):
+    return HttpResponse('test')
+    pass
+
+
+# API views to get suspects and investigators AJAX
 from django.http import JsonResponse
 from django.contrib.admin.views.decorators import staff_member_required
-from .models import Suspects, Investigators
+
 
 @staff_member_required
 def get_suspects_by_murder(request):
@@ -81,3 +98,4 @@ def get_investigators_by_murder(request):
         investigators_list = Investigators.objects.filter(murders_id=murder_id).values('id', 'name')
         return JsonResponse({'investigators': list(investigators_list)})
     return JsonResponse({'investigators': []})
+

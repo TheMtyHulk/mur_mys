@@ -28,7 +28,8 @@
       {% if murder.short_description %}
         <p>{{ murder.short_description }}</p>
       {% endif %}
-      <a href="#" class="card-btn">View Details</a>
+      {% comment %} <a href="#" class="card-btn">Solve</a> {% endcomment %}
+      <a href="{% url 'solve_murder' murder.id %}" class="card-btn" target="_self" >Solve</a>
     </div>
   </div>
   {% empty %}
@@ -46,8 +47,8 @@
 
 </div>
 
-<div id="app"></div>
+{% comment %} <div id="app"></div>
 <a href="#">
   <i class="fa fa-github-alt fa-2x"></i>
-</a>
+</a> {% endcomment %}
 {% endblock %}

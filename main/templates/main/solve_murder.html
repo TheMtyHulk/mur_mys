@@ -1,0 +1,237 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load widget_tweaks %}
+
+<div class="murder-case-detail">
+    <!-- Case Header -->
+    <div class="case-header">
+        <h1>{{ murder.name }}</h1>
+        {% if murder.date %}
+            <p class="case-date"><strong>Date:</strong> {{ murder.date|date:"F d, Y" }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Case Image -->
+    {% if murder.image %}
+    <div class="case-image-container">
+        <img src="{{ murder.image.url }}" alt="{{ murder.name }}" 
+             style="width: 100%; max-width: 600px; height: 400px; object-fit: cover; 
+                    border-radius: 8px; display: block; margin: 20px auto;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+    </div>
+    {% endif %}
+
+    <!-- Case Description -->
+    <div class="case-description">
+        <h2>Case Details</h2>
+        {% if murder.description %}
+            <div class="description-content">
+                {{ murder.description|linebreaks }}
+            </div>
+        {% else %}
+            <p>No detailed description available.</p>
+        {% endif %}
+    </div>
+    <br>
+    <!-- Suspects Section -->
+    <div class="suspects-section">
+        <h2>Suspects ({{ murder.suspects.count }})</h2>
+        {% if murder.suspects.exists %}
+                <div class="case-navigation">
+                    <a href="{% url 'suspects_profile' murder.id %}" class="card-btn" target="_self" >view suspects profile</a>
+                </div>
+
+            {% comment %} <div class="suspects-grid">
+                {% for suspect in murder.suspects.all %}
+                <div class="suspect-card card noisy">
+                    <div class="card-content">
+                        {% if suspect.image %}
+                            <div class="suspect-image">
+                                <img src="{{ suspect.image.url }}" alt="{{ suspect.name }}" 
+                                     style="width: 100%; height: 200px; object-fit: cover; 
+                                            border-radius: 8px; margin-bottom: 10px;">
+                            </div>
+                        {% endif %}
+                        <h3>{{ suspect.name }}</h3>
+                        {% if suspect.age %}
+                            <p><strong>Age:</strong> {{ suspect.age }}</p>
+                        {% endif %}
+                        {% if suspect.description %}
+                            <p>{{ suspect.description|truncatewords:30 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>  {% endcomment %}
+        {% else %}
+            <p>No suspects identified yet.</p>
+        {% endif %}
+    </div>
+    <br>
+    <!-- Investigators Section -->
+    <div class="investigators-section">
+        <h2>Investigators ({{ murder.investigations.count }})</h2>
+        {% if murder.investigations.exists %}
+                <div class="case-navigation">
+                    <a href="{% url 'investigators_profile' murder.id %}" class="card-btn" target="_self" >view investigators profile</a>
+                </div>
+            {% comment %} <div class="investigators-grid">
+                {% for investigator in murder.investigations.all %}
+                <div class="investigator-card card noisy">
+                    <div class="card-content">
+                        {% if investigator.image %}
+                            <div class="investigator-image">
+                                <img src="{{ investigator.image.url }}" alt="{{ investigator.name }}" 
+                                     style="width: 100%; height: 200px; object-fit: cover; 
+                                            border-radius: 8px; margin-bottom: 10px;">
+                            </div>
+                        {% endif %}
+                        <h3>{{ investigator.name }}</h3>
+                        {% if investigator.age %}
+                            <p><strong>Age:</strong> {{ investigator.age }}</p>
+                        {% endif %}
+                        {% if investigator.description %}
+                            <p>{{ investigator.description|truncatewords:30 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div> {% endcomment %}
+        {% else %}
+            <p>No investigators assigned yet.</p>
+        {% endif %}
+    </div>
+<br>
+    <!-- Interviews Section -->
+    <div class="interviews-section">
+        <h2>Interviews ({{ murder.interviews.count }})</h2>
+        {% if murder.interviews.exists %}
+                <div class="case-navigation">
+                    <a href="{% url 'interview' murder.id %}" class="card-btn" target="_self" >view Interviews</a>
+                </div>
+
+            {% comment %} <div class="interviews-list">
+                {% for interview in murder.interviews.all %}
+                <div class="interview-card card noisy">
+                    <div class="card-content">
+                        <div class="interview-header">
+                            <h3>Interview: {{ interview.suspects.name }} by {{ interview.investigators.name }}</h3>
+                            {% if interview.date %}
+                                <p class="interview-date"><strong>Date:</strong> {{ interview.date|date:"F d, Y g:i A" }}</p>
+                            {% endif %}
+                        </div>
+                        {% if interview.image %}
+                            <div class="interview-image">
+                                <img src="{{ interview.image.url }}" alt="Interview Evidence" 
+                                     style="width: 100%; max-width: 400px; height: 250px; object-fit: cover; 
+                                            border-radius: 8px; margin: 10px 0;">
+                            </div>
+                        {% endif %}
+                        {% if interview.content %}
+                            <div class="interview-content">
+                                <h4>Interview Notes:</h4>
+                                <div class="content-box">
+                                    {{ interview.content|linebreaks }}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div> {% endcomment %}
+        {% else %}
+            <p>No interviews conducted yet.</p>
+        {% endif %}
+    </div>
+    <br><br>
+    <!-- Navigation -->
+    <div class="case-navigation">
+        <a href="{% url 'index' %}" class="card-btn" target="_self">← Back to Cases</a>
+    </div>
+</div>
+
+<style>
+.murder-case-detail {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.case-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.case-header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.case-date {
+    font-size: 1.2em;
+    color: #666;
+}
+
+.case-description {
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+}
+
+.description-content {
+    line-height: 1.6;
+    font-size: 1.1em;
+}
+
+.suspects-grid, .investigators-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.interviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.interview-card {
+    width: 100%;
+}
+
+.interview-header {
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.content-box {
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #007bff;
+}
+
+.case-navigation {
+    text-align: center;
+    margin: 40px 0;
+}
+
+h2 {
+    color: #fff;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+    margin: 30px 0 20px 0;
+}
+
+@media (max-width: 768px) {
+    .suspects-grid, .investigators-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+{% endblock %}
