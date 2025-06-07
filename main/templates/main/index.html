@@ -1,54 +1,578 @@
 {% extends 'layout.html' %}
 {% block content %}
 {% load widget_tweaks %}
-<h1>./Welcome</h1>
 
-<div class="card-container">
-
-  <!-- Murders Cards -->
-  {% for murder in murders %}
-  <div class="card noisy">
-    <div class="card-content">
-      {% if murder.image %}
-        <div class="card-image">
-          <img src="{{ murder.image.url }}" alt="{{ murder.name }}" 
-            style="width: 100%; height: 200px; object-fit: cover; 
-                border-radius: 8px; display: block; 
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-                transition: transform 0.3s ease; 
-                margin-bottom: 10px;">
-        </div>
-      {% endif %}
-      <div class="card-header" style="text-align: center;">
-        <h3>{{ murder.name|default:"Murder Case" }}</h3>
-      </div>
-      <p>
-        <strong>Date:</strong> {{ murder.date|default:"Unknown" }}<br>
-      </p>
-      {% if murder.short_description %}
-        <p>{{ murder.short_description }}</p>
-      {% endif %}
-      {% comment %} <a href="#" class="card-btn">Solve</a> {% endcomment %}
-      <a href="{% url 'solve_murder' murder.id %}" class="card-btn" target="_self" >Solve</a>
-    </div>
-  </div>
-  {% empty %}
-
-  
-  <div class="card noisy">
-    <div class="card-content">
-      <div class="card-header">
-        <h3>No Cases Found</h3>
-      </div>
-      <p>No murder cases are currently available in the database.</p>
-    </div>
-  </div>
-  {% endfor %}
-
+<!-- Welcome Section -->
+<div class="welcome-section">
+    {% if request.user.is_authenticated %}
+        <h2 class="welcome-message">🔍 Welcome back, {{ request.user.first_name|default:request.user.username }}!</h2>
+        <p class="welcome-subtitle">Ready to solve some mysteries? Choose a case below to get started.</p>
+    {% else %}
+        <h2 class="welcome-message">🔍 Welcome to Mystery Solver</h2>
+        <p class="welcome-subtitle">Test your detective skills with our collection of murder mysteries.</p>
+    {% endif %}
 </div>
 
-{% comment %} <div id="app"></div>
-<a href="#">
-  <i class="fa fa-github-alt fa-2x"></i>
-</a> {% endcomment %}
+{% comment %} <!-- Statistics Dashboard -->
+<div class="stats-dashboard">
+    <div class="stat-card">
+        <div class="stat-icon">📁</div>
+        <div class="stat-info">
+            <h3>{{ murders|length }}</h3>
+            <p>Available Cases</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">🔍</div>
+        <div class="stat-info">
+            <h3>{{ total_suspects }}</h3>
+            <p>Total Suspects</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">👮</div>
+        <div class="stat-info">
+            <h3>{{ total_investigators }}</h3>
+            <p>Investigators</p>
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">💬</div>
+        <div class="stat-info">
+            <h3>{{ total_interviews }}</h3>
+            <p>Interviews</p>
+        </div>
+    </div>
+</div> {% endcomment %}
+
+<!-- Cases Section Header -->
+{% comment %} <div class="section-header">
+    <h2>🕵️ Cases to Solve</h2>
+    <p>Each case contains suspects, investigators, and interviews. Analyze the evidence and solve the mystery!</p>
+</div> {% endcomment %}
+
+<!-- Cases Container -->
+<div class="card-container">
+    {% for murder in murders %}
+    <div class="card noisy case-card">
+        <div class="card-content">
+            <!-- Case Status Badge -->
+            {% comment %} <div class="case-status">
+                <span class="status-badge unsolved">🔍 Unsolved</span>
+            </div> {% endcomment %}
+            
+            {% if murder.image %}
+            <div class="card-image">
+                <img src="{{ murder.image.url }}" alt="{{ murder.name }}" 
+                     style="width: 100%; height: 200px; object-fit: cover; 
+                            border-radius: 8px; display: block; 
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+                            transition: transform 0.3s ease; 
+                            margin-bottom: 15px;">
+            </div>
+            {% else %}
+            <div class="card-image-placeholder">
+                <div class="placeholder-icon">🔍</div>
+                <p>No Image Available</p>
+            </div>
+            {% endif %}
+            
+            <div class="card-header">
+                <h3>{{ murder.name|default:"Murder Case" }}</h3>
+            </div>
+            
+            <!-- Case Details -->
+            <div class="case-details">
+                <div class="detail-item">
+                    <strong>📅 Date:</strong> 
+                    <span>{{ murder.date|date:"M d, Y"|default:"Unknown" }}</span>
+                </div>
+                
+                {% if murder.short_description %}
+                <div class="case-description">
+                    <p>{{ murder.short_description }}</p>
+                </div>
+                {% endif %}
+                
+                <!-- Case Statistics -->
+                {% comment %} <div class="case-stats">
+                    <div class="stat-item">
+                        <span class="stat-icon">👥</span>
+                        <span class="stat-text">{{ murder.suspects.count }} Suspect{{ murder.suspects.count|pluralize }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">👮</span>
+                        <span class="stat-text">{{ murder.investigations.count }} Investigator{{ murder.investigations.count|pluralize }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon">💬</span>
+                        <span class="stat-text">{{ murder.interviews.count }} Interview{{ murder.interviews.count|pluralize }}</span>
+                    </div>
+                </div> {% endcomment %}
+                
+                <!-- Difficulty Badge -->
+                <div class="difficulty-indicator">
+                    {% if murder.suspects.count <= 10 %}
+                        <span class="difficulty easy">🟢 Easy</span>
+                    {% elif murder.suspects.count <= 20 %}
+                        <span class="difficulty medium">🟡 Medium</span>
+                    {% else %}
+                        <span class="difficulty hard">🔴 Hard</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="card-actions">
+                <a href="{% url 'solve_murder' murder.id %}" class="card-btn primary-btn">
+                    🔍 Start Investigation
+                </a>
+                {% comment %} {% if murder.suspects.count > 0 %}
+                <a href="{% url 'suspects_profile' murder.id %}" class="card-btn secondary-btn">
+                    👥 View Suspects
+                </a>
+                {% endif %} {% endcomment %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <!-- No Cases Available -->
+    <div class="no-cases-container">
+        <div class="no-cases-content">
+            <div class="no-cases-icon">🔍</div>
+            <h3>No Cases Available</h3>
+            <p>No murder cases are currently available in the database.</p>
+            {% if request.user.is_staff %}
+                <a href="{% url 'admin:main_murders_add' %}" class="card-btn">➕ Add New Case</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Help Section -->
+{% comment %} {% if not request.user.is_authenticated %}
+<div class="help-section">
+    <div class="help-content">
+        <h3>🎯 How to Get Started</h3>
+        <div class="help-steps">
+            <div class="help-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Choose a Case</h4>
+                    <p>Select an unsolved murder case from the list above</p>
+                </div>
+            </div>
+            <div class="help-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>Investigate</h4>
+                    <p>Review suspects, evidence, and interview transcripts</p>
+                </div>
+            </div>
+            <div class="help-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Solve</h4>
+                    <p>Use your detective skills to identify the killer</p>
+                </div>
+            </div>
+        </div>
+        <div class="help-actions">
+            <a href="{% url 'register' %}" class="card-btn primary-btn">🚀 Get Started</a>
+            <a href="{% url 'contact' %}" class="card-btn secondary-btn">💬 Need Help?</a>
+        </div>
+    </div>
+</div>
+{% endif %} {% endcomment %}
+
+<style>
+/* Welcome Section */
+.welcome-section {
+    text-align: center;
+    margin: 40px 0;
+    padding: 40px 20px;
+    {% comment %} background: linear-gradient(135deg, rgba(0,123,255,0.1), rgba(0,123,255,0.05)); {% endcomment %}
+    border-radius: 15px;
+    {% comment %} border: 1px solid rgba(0,123,255,0.2); {% endcomment %}
+}
+
+.welcome-message {
+    color: #fff;
+    font-size: 2.5em;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.welcome-subtitle {
+    color: #ccc;
+    font-size: 1.2em;
+    margin: 0;
+}
+
+/* Statistics Dashboard */
+.stats-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 40px 0;
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.1);
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,123,255,0.2);
+}
+
+.stat-icon {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+}
+
+.stat-info h3 {
+    color: #fff;
+    font-size: 2em;
+    margin: 10px 0 5px 0;
+}
+
+.stat-info p {
+    color: #ccc;
+    margin: 0;
+    font-size: 1.1em;
+}
+
+/* Section Header */
+.section-header {
+    text-align: center;
+    margin: 50px 0 30px 0;
+}
+
+.section-header h2 {
+    color: #fff;
+    font-size: 2.2em;
+    margin-bottom: 15px;
+}
+
+.section-header p {
+    color: #ccc;
+    font-size: 1.1em;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Enhanced Case Cards */
+.case-card {
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.case-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px rgba(0,123,255,0.3);
+}
+
+.case-status {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 2;
+}
+
+.status-badge {
+    background: rgba(255,193,7,0.9);
+    color: #000;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-badge.unsolved {
+    background: rgba(220,53,69,0.9);
+    color: #fff;
+}
+
+.card-image-placeholder {
+    background: rgba(255,255,255,0.1);
+    height: 200px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    border: 2px dashed rgba(255,255,255,0.3);
+}
+
+.placeholder-icon {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+.card-image-placeholder p {
+    color: #999;
+    margin: 0;
+}
+
+.case-details {
+    margin: 20px 0;
+}
+
+.detail-item {
+    margin: 10px 0;
+    color: #fff;
+}
+
+.case-description {
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    {% comment %} border-left: 4px solid #007bff; {% endcomment %}
+}
+
+.case-description p {
+    color: #ccc;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.case-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0,123,255,0.2);
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,123,255,0.3);
+}
+
+.stat-icon {
+    font-size: 1.1em;
+}
+
+.stat-text {
+    color: #fff;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.difficulty-indicator {
+    margin: 15px 0;
+}
+
+.difficulty {
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.difficulty.easy {
+    background: rgba(40,167,69,0.2);
+    color: #28a745;
+    border: 1px solid rgba(40,167,69,0.4);
+}
+
+.difficulty.medium {
+    background: rgba(255,193,7,0.2);
+    color: #ffc107;
+    border: 1px solid rgba(255,193,7,0.4);
+}
+
+.difficulty.hard {
+    background: rgba(220,53,69,0.2);
+    color: #dc3545;
+    border: 1px solid rgba(220,53,69,0.4);
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.primary-btn {
+    background: #007bff;
+    flex: 2;
+}
+
+.secondary-btn {
+    background: #6c757d;
+    flex: 1;
+}
+
+/* No Cases */
+.no-cases-container {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.no-cases-content {
+    background: rgba(255,255,255,0.1);
+    padding: 50px;
+    border-radius: 15px;
+    border: 2px dashed rgba(255,255,255,0.3);
+}
+
+.no-cases-icon {
+    font-size: 4em;
+    margin-bottom: 20px;
+}
+
+.no-cases-content h3 {
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.no-cases-content p {
+    color: #ccc;
+    margin-bottom: 25px;
+}
+
+/* Help Section */
+.help-section {
+    background: rgba(255,255,255,0.05);
+    padding: 50px 20px;
+    border-radius: 15px;
+    margin: 50px 0;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.help-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.help-content h3 {
+    color: #fff;
+    font-size: 2em;
+    margin-bottom: 30px;
+}
+
+.help-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin: 40px 0;
+}
+
+.help-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    text-align: left;
+}
+
+.step-number {
+    background: #007bff;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.step-content h4 {
+    color: #fff;
+    margin: 0 0 10px 0;
+}
+
+.step-content p {
+    color: #ccc;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.help-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .welcome-message {
+        font-size: 2em;
+    }
+    
+    .welcome-section {
+        margin: 20px 0;
+        padding: 20px 15px;
+    }
+    
+    .welcome-subtitle {
+        font-size: 1em;
+    }
+    
+    .stats-dashboard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .case-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .card-actions {
+        flex-direction: column;
+    }
+    
+    .help-steps {
+        grid-template-columns: 1fr;
+    }
+    
+    .help-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Mobile View - Small screens */
+@media (max-width: 480px) {
+    .welcome-section {
+        margin: 15px 0;
+        padding: 15px 10px;
+    }
+    
+    .welcome-message {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+        line-height: 1.2;
+    }
+    
+    .welcome-subtitle {
+        font-size: 0.9em;
+        line-height: 1.4;
+    }
+}
+</style>
+
 {% endblock %}

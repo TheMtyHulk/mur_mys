@@ -56,9 +56,6 @@ def logoutView(request):
     logout(request)
     return redirect('index')  # Redirect to the index page after logout
 
-
-
-
 def solveMurderView(request,murder_id):
     murder = get_object_or_404(Murders, id=murder_id)
     return render(request,'main/solve_murder.html',{'murder':murder})
@@ -82,6 +79,46 @@ def interviewsView(request, murder_id):
     }
     return render(request, 'main/interviews.html', context)
 
+@contactLoginRequired
+def contactView(request):
+    # Get or create active chat room for user
+    chat_room, created = ChatRoom.objects.get_or_create(
+        user=request.user,
+        is_active=True,
+        defaults={
+            'subject': f'Support Chat - {request.user.username}',
+        }
+    )
+    
+    # Get all messages for this chat room
+    messages = chat_room.messages.all()
+    
+    # Mark admin messages as read
+    ChatMessage.objects.filter(
+        chat_room=chat_room,
+        is_admin=True,
+        is_read=False
+    ).update(is_read=True)
+    
+    # Handle new message
+    if request.method == 'POST':
+        message_text = request.POST.get('message', '').strip()
+        if message_text:
+            ChatMessage.objects.create(
+                chat_room=chat_room,
+                sender=request.user,
+                message=message_text,
+                is_admin=False
+            )
+            # Update chat room timestamp
+            chat_room.save()
+            return redirect('contact')
+    
+    context = {
+        'chat_room': chat_room,
+        'messages': messages,
+    }
+    return render(request, 'main/contact.html', context)
 
 # API views to get suspects and investigators AJAX
 from django.http import JsonResponse
@@ -158,48 +195,7 @@ def get_interview_details(request, interview_id):
     
 
 
-from .models import Suspects, Investigators, Murders, Interviews, ChatRoom, ChatMessage
-
-@login_required
-def contactView(request):
-    # Get or create active chat room for user
-    chat_room, created = ChatRoom.objects.get_or_create(
-        user=request.user,
-        is_active=True,
-        defaults={
-            'subject': f'Support Chat - {request.user.username}',
-        }
-    )
-    
-    # Get all messages for this chat room
-    messages = chat_room.messages.all()
-    
-    # Mark admin messages as read
-    ChatMessage.objects.filter(
-        chat_room=chat_room,
-        is_admin=True,
-        is_read=False
-    ).update(is_read=True)
-    
-    # Handle new message
-    if request.method == 'POST':
-        message_text = request.POST.get('message', '').strip()
-        if message_text:
-            ChatMessage.objects.create(
-                chat_room=chat_room,
-                sender=request.user,
-                message=message_text,
-                is_admin=False
-            )
-            # Update chat room timestamp
-            chat_room.save()
-            return redirect('contact')
-    
-    context = {
-        'chat_room': chat_room,
-        'messages': messages,
-    }
-    return render(request, 'main/contact.html', context)
+from .models import ChatRoom, ChatMessage
 
 # AJAX endpoint to get new messages
 @login_required
