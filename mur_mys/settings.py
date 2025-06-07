@@ -11,32 +11,41 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+import logging
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# Load environment variables
+load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
-import os
-from dotenv import load_dotenv
-load_dotenv()
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'default_secret_key')
-
-#for debugging purposes, print the secret key
-# print(f"Using SECRET_KEY: {SECRET_KEY}")
-
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    # Only use default in development
+    logging.warning("No DJANGO_SECRET_KEY set. Using default key - NOT SECURE FOR PRODUCTION!")
+    SECRET_KEY = 'default_secret_key'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
+# DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+DEBUG=os.getenv('DJANGO_DEBUG', 'False') == 'True'
+# print(os.getenv('DJANGO_DEBUG'))
 
-ALLOWED_HOSTS = []
+# In production, ensure ALLOWED_HOSTS is properly set
+if not DEBUG:
+    ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('DJANGO_ALLOWED_HOSTS') else ['*']
+    CSRF_TRUSTED_ORIGINS = os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',') if os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS') else []
+else:
+    ALLOWED_HOSTS = []
+    CSRF_TRUSTED_ORIGINS = []
 
+if DEBUG:
+    logging.info(f"Using ALLOWED_HOSTS: {ALLOWED_HOSTS}")
+    logging.info(f"Using CSRF_TRUSTED_ORIGINS: {CSRF_TRUSTED_ORIGINS}")
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -45,20 +54,22 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
-
     # Third-party apps
     'django_cleanup',
-    'widget_tweaks',  # For custom widget styles
+    'widget_tweaks',
+    'storages',  # For Azure Blob Storage
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'mur_mys.urls'
@@ -66,7 +77,7 @@ ROOT_URLCONF = 'mur_mys.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],  # Directory for custom templates
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,21 +92,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mur_mys.wsgi.application'
 
-
+from helpers.db_dict import parse_pg_conn_str
+conndict= parse_pg_conn_str(os.getenv('AZURE_POSTGRESQL_CONNECTIONSTRING'))
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': conndict['dbname'],
+        'USER': conndict['user'],
+        'PASSWORD': conndict['password'],
+        'HOST': conndict['host'],
+        'PORT': conndict['port'],
+        'OPTIONS': {
+            'sslmode': conndict['sslmode'],  # Use SSL for Azure PostgreSQL
+        },
     }
 }
 
-
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -111,37 +125,71 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-LOGIN_URL = 'index'  
-
+LOGIN_URL = 'index'
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "main/static"),
-    os.path.join(BASE_DIR, "media"),
-    # os.path.join(BASE_DIR, "static"),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# WhiteNoise configuration for static files
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Configure logging to see storage errors
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'storages': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
+if not DEBUG:
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.azure_storage.AzureStorage",
+            "OPTIONS": {
+                "connection_string": os.getenv('AZURE_CONNECTION_STRING'),
+                "azure_container": "media",
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+    AZURE_ACCOUNT_NAME = os.getenv('AZURE_ACCOUNT_NAME')
+    AZURE_ACCOUNT_KEY = os.getenv('AZURE_ACCOUNT_KEY')
+    AZURE_CONTAINER = os.getenv('AZURE_MEDIA_CONTAINER', 'media')
+else:
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+            "LOCATION": os.path.join(BASE_DIR, 'media'),
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+
+    
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
