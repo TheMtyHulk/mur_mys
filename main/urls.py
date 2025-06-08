@@ -14,7 +14,7 @@ urlpatterns = [
     path('investigatorsprofile/<int:murder_id>/', views.investigatorsProfileView, name='investigators_profile'),
     path('interviews/<int:murder_id>/', views.interviewsView, name='interview'),
     # Chat URLs
-    path('contact/', views.contactView, name='contact'),
+    # path('contact/', views.contactView, name='contact'),
     path('ajax/get-new-messages/', views.get_new_messages, name='get_new_messages'),
     path('ajax/send-message/', views.send_message, name='send_message'),
     path('ajax/clear-chat/', views.clear_chat, name='clear_chat'),  # Add this line

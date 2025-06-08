@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 def anonymousRequired(view_func):
     def wrapper(request, *args, **kwargs):
         if request.user.is_authenticated:
-            return HttpResponseForbidden()
+            return redirect('index')  # Redirect to home page if user is authenticated
         else:
             return view_func(request, *args, **kwargs)
     return wrapper

@@ -16,6 +16,7 @@ def index(request):
 
 
 #login view
+@anonymousRequired
 def loginView(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -29,7 +30,6 @@ def loginView(request):
                     # User is active, log them in
                     login(request, user)
                     return redirect('admin:index')
-                
                 login(request, user)
                 return redirect('index')
             else:

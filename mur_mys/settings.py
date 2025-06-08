@@ -23,13 +23,9 @@ load_dotenv()
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
-if not SECRET_KEY:
-    # Only use default in development
-    logging.warning("No DJANGO_SECRET_KEY set. Using default key - NOT SECURE FOR PRODUCTION!")
-    SECRET_KEY = 'default_secret_key'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 DEBUG=os.getenv('DJANGO_DEBUG', 'False') == 'True'
 # print(os.getenv('DJANGO_DEBUG'))
 
@@ -38,12 +34,8 @@ if not DEBUG:
     ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('DJANGO_ALLOWED_HOSTS') else ['*']
     CSRF_TRUSTED_ORIGINS = os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',') if os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS') else []
 else:
-    ALLOWED_HOSTS = []
-    CSRF_TRUSTED_ORIGINS = []
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']  
 
-if DEBUG:
-    logging.info(f"Using ALLOWED_HOSTS: {ALLOWED_HOSTS}")
-    logging.info(f"Using CSRF_TRUSTED_ORIGINS: {CSRF_TRUSTED_ORIGINS}")
 
 # Application definition
 INSTALLED_APPS = [
@@ -69,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'middleware.adminMiddleware.RestrictAdminMiddleware',
 
 ]
 
@@ -92,22 +85,34 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mur_mys.wsgi.application'
 
-from helpers.db_dict import parse_pg_conn_str
-conndict= parse_pg_conn_str(os.getenv('AZURE_POSTGRESQL_CONNECTIONSTRING',''))
 # Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': conndict['dbname'],
-        'USER': conndict['user'],
-        'PASSWORD': conndict['password'],
-        'HOST': conndict['host'],
-        'PORT': conndict['port'],
-        'OPTIONS': {
-            'sslmode': conndict['sslmode'],  # Use SSL for Azure PostgreSQL
-        },
+# Use environment variables for database configuration
+
+if not DEBUG:
+    from helpers.db_dict import parse_pg_conn_str
+    conndict= parse_pg_conn_str(os.getenv('AZURE_POSTGRESQL_CONNECTIONSTRING',''))
+    # Database
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': conndict['dbname'],
+            'USER': conndict['user'],
+            'PASSWORD': conndict['password'],
+            'HOST': conndict['host'],
+            'PORT': conndict['port'],
+            'OPTIONS': {
+                'sslmode': conndict['sslmode'],  # Use SSL for Azure PostgreSQL
+            },
+        }
     }
-}
+else:
+    # Database
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -134,8 +139,8 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# WhiteNoise configuration for static files
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
 
 # Configure logging to see storage errors
 LOGGING = {
@@ -157,6 +162,8 @@ LOGGING = {
         },
     },
 }
+
+# Media files (user-uploaded content)
 if not DEBUG:
     STORAGES = {
         "default": {
@@ -174,15 +181,9 @@ if not DEBUG:
     AZURE_ACCOUNT_KEY = os.getenv('AZURE_ACCOUNT_KEY')
     AZURE_CONTAINER = os.getenv('AZURE_MEDIA_CONTAINER', 'media')
 else:
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-            "LOCATION": os.path.join(BASE_DIR, 'media'),
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
+    # Local storage settings for development
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
     
 # Internationalization
