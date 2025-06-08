@@ -27,11 +27,11 @@
                         </div>
                         
                         <div class="profile-actions">
-                            <a href="?edit=true" class="card-btn">Edit Profile</a>
+                            <a href="?edit=true" target="_self" class="card-btn">Edit Profile</a>
                         </div>
                     {% else %}
                         <!-- Edit Mode -->
-                        <form method="post" class="profile-form">
+                        <form method="post" target="_self" class="profile-form">
                             {% csrf_token %}
                             
                             <div class="form-group">
@@ -59,8 +59,8 @@
                             </div>
                             
                             <div class="profile-actions">
-                                <button type="submit" class="card-btn">Save Changes</button>
-                                <a href="{% url 'profile' %}" class="card-btn" style="background: #ea36af;">Cancel</a>
+                                <button type="submit" target="_self" class="card-btn">Save Changes</button>
+                                <a href="{% url 'profile' %}" class="card-btn" target="_self" style="background: #ea36af;">Cancel</a>
                             </div>
                         </form>
                     {% endif %}
@@ -109,7 +109,7 @@
                     </div>
                     
                     <div class="profile-actions">
-                        <a href="{% url 'password_change' %}" class="card-btn">Change Password</a>
+                        <a href="{% url 'password_change' %}" target="_self" class="card-btn">Change Password</a>
                     </div>
                 </div>
             </div>
