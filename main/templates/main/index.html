@@ -127,7 +127,7 @@
             
             <!-- Action Buttons -->
             <div class="card-actions">
-                <a href="{% url 'solve_murder' murder.id %}" class="card-btn primary-btn">
+                <a href="{% url 'solve_murder' murder.id %}" target="_self" class="card-btn primary-btn">
                     🔍 Start Investigation
                 </a>
                 {% comment %} {% if murder.suspects.count > 0 %}
