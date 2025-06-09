@@ -12,6 +12,8 @@ urlpatterns = [
     path('solve/<int:murder_id>/', views.solveMurderView, name='solve_murder'),
     path('suspectsprofile/<int:murder_id>/', views.suspectsProfileView, name='suspects_profile'),
     path('investigatorsprofile/<int:murder_id>/', views.investigatorsProfileView, name='investigators_profile'),
+   
+    path('support/chat/', views.admin_chat_dashboard, name='admin_chat'),
     path('interviews/<int:murder_id>/', views.interviewsView, name='interview'),
     # Chat URLs
     # path('contact/', views.contactView, name='contact'),
@@ -29,4 +31,6 @@ urlpatterns = [
         template_name='main/password_change.html',
         success_url='/profile/?changed=true'
     ), name='password_change'),
+    path('ajax/admin-get-new-messages/', views.admin_get_new_messages, name='admin_get_new_messages'),
+    path('support/clear-chat/', views.admin_clear_chat, name='admin_clear_chat'),
 ]

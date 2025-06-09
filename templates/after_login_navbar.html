@@ -6,10 +6,18 @@
     <div class="nav-menu">
         <ul class="nav-list">
             <!-- <li class="nav-item"><a href="/dashboard/" target="_self" class="nav-link">Dashboard</a></li> -->
+            {% if request.user.is_superuser %}
+            <li class="nav-item"><a href="/support/chat" target="_self" class="nav-link">chat</a></li>
+            <li class="nav-item"><a href="/admin" target="_self" class="nav-link">admin</a></li>
+            {% endif %}
             <li class="nav-item"><a href="/profile/" target="_self" class="nav-link">Profile</a></li>
             <!-- <li class="nav-item"><a href="/projects/" target="_self" class="nav-link">My Projects</a></li> -->
+            {% if not request.user.is_superuser %}
             <li class="nav-item"><a href="/contact/" target="_self" class="nav-link">Contact</a></li>
+            {% endif %}
             <li class="nav-item"><a href="/logout/" target="_self" class="nav-link">Logout</a></li>
+            
+            
         </ul>
     </div>
 </nav>
