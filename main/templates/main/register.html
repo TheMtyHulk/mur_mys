@@ -28,7 +28,9 @@
             <div class="form-group">
                 <!-- <label for="{{ form.username.id_for_label }}">Username</label> -->
                 {% render_field form.username class="custom-input" placeholder="Username" %}
-                <small class="helper-text">{{ form.username.help_text }}</small>
+{% comment %}                
+<small class="helper-text">{{ form.username.help_text }}</small>
+{% endcomment %} 
                 <small class="error">{{ form.username.errors }}</small>
             </div>
 
