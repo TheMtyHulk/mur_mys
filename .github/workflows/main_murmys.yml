@@ -33,13 +33,8 @@ jobs:
         run: pip install -r requirements.txt
       
       - name: collect static files
-        run: |
-          export DISABLE_DATABASE=True
-          python manage.py collectstatic --noinput
-      
-
+        run: python manage.py collectstatic --noinput
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
-
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
 
