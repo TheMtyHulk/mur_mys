@@ -5,4 +5,15 @@ def parse_pg_conn_str(conn_str):
         if '=' in part:
             key, value = part.split('=', 1)
             conn_dict[key] = value
-    return conn_dict
+    if conn_str:
+        return conn_dict
+    else:
+        return {
+            'dbname': '',
+            'user': '',
+            'password': '',
+            'host': '',
+            'port': '',
+            'sslmode': 'require'  # Default to require SSL
+        }
+    
