@@ -178,6 +178,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 showTypingIndicator();
             } else {
                 alert('Error sending message: ' + data.error);
+                location.reload(); // Reload to ensure chat state is consistent
+
             }
         })
         .catch(error => {

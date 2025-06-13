@@ -5,7 +5,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('main.urls')),  # Include the main app's URLs
+    path('', include('main.urls')),
+    path('', include('chat.urls')),    # Include the main app's URLs
 ]
 
 # Only for local development

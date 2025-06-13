@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
+    'chat',
     # Third-party apps
     'django_cleanup',
     'widget_tweaks',
@@ -87,6 +88,15 @@ WSGI_APPLICATION = 'mur_mys.wsgi.application'
 
 # Database
 # Use environment variables for database configuration
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.janvey.jnnce.ac.in'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False  # TLS typically uses port 587, for port 465 use SSL
+EMAIL_USE_SSL = True   # Add this line when using port 465
+EMAIL_HOST_USER = 'noreply@janvey.jnnce.ac.in'
+EMAIL_HOST_PASSWORD = 'Pramod@123'  # Replace with the actual password or app password
+DEFAULT_FROM_EMAIL = 'Mur_Mys Team <noreply@janvey.jnnce.ac.in>'
 
 if not DEBUG:
     from helpers.db_dict import parse_pg_conn_str
