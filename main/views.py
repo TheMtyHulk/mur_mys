@@ -55,9 +55,9 @@ def loginView(request):
                     user = User.objects.get(username=username)
                     if user and user.check_password(password) and not user.is_active:
                         return render(request, 'main/account_inactive.html', {'user': user})
-                    messages.error(request, "Invalid username or password")
+                    form.add_error('password', 'Invalid username or password')
                 except User.DoesNotExist:
-                    messages.error(request, "Invalid username or password")
+                    form.add_error('password', 'Invalid username or password')
     else:
         form = LoginForm()
     return render(request, 'main/login.html', {'form': form})
