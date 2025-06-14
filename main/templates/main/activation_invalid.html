@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+    <div class="box">
+        <h2>Activation Failed</h2>
+        <p>The activation link is invalid or has expired. Please try registering again or contact support.</p>
+        <a href="{% url 'register' %}" class="card-btn" target="_self">Register Again</a>
+    </div>
+</div>
+{% endblock %}

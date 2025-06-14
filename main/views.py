@@ -3,50 +3,112 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import redirect
 from .forms import LoginForm, UserRegistrationForm, ProfileUpdateForm
-from helpers.decorators import anonymousRequired,contactLoginRequired
+from helpers.decorators import anonymousRequired
 from django.contrib.auth.decorators import login_required
 from .models import Suspects, Investigators,Murders,Interviews
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-#index view
-#index view
+
 def index(request):
     murders = Murders.objects.all()  
     return render(request, 'main/index.html', {'murders': murders}) 
 
 
 #login view
-@anonymousRequired
+# @anonymousRequired
+# def loginView(request):
+#     if request.method == 'POST':
+#         form = LoginForm(request.POST)
+#         if form.is_valid():
+#             username = form.cleaned_data['username']
+#             password = form.cleaned_data['password']
+#             user = authenticate(request, username=username, password=password)
+
+#             if user is not None:
+#                 # if user.is_superuser:
+#                 #     # User is active, log them in
+#                 #     login(request, user)
+#                 #     return redirect('admin:index')
+#                 login(request, user)
+#                 return redirect('index')
+#             else:
+#                 form.add_error('password', 'Invalid username or password')
+#     else:
+#         form = LoginForm()
+#     return render(request, 'main/login.html', {'form': form})
+from django.contrib import messages
+
 def loginView(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
+            
             user = authenticate(request, username=username, password=password)
-
+            
             if user is not None:
-                # if user.is_superuser:
-                #     # User is active, log them in
-                #     login(request, user)
-                #     return redirect('admin:index')
                 login(request, user)
                 return redirect('index')
             else:
-                form.add_error('password', 'Invalid username or password')
+                try:
+                    user = User.objects.get(username=username)
+                    if user and user.check_password(password) and not user.is_active:
+                        return render(request, 'main/account_inactive.html', {'user': user})
+                    messages.error(request, "Invalid username or password")
+                except User.DoesNotExist:
+                    messages.error(request, "Invalid username or password")
     else:
         form = LoginForm()
     return render(request, 'main/login.html', {'form': form})
 
 #register user view
+# @anonymousRequired
+# def registerView(request):
+#     if request.method == 'POST':
+#         form = UserRegistrationForm(request.POST)
+#         if form.is_valid():
+#             user = form.save()
+#             login(request, user)
+#             return redirect('index')
+#     else:
+#         form = UserRegistrationForm()
+#     return render(request, 'main/register.html', {'form': form})
+
+
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import EmailMessage
+
 @anonymousRequired
 def registerView(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('index')
+            # Create user but don't login yet
+            user = form.save(commit=False)
+            user.is_active = False  # Deactivate account until it's verified
+            user.save()
+            
+            # Send verification email
+            current_site = get_current_site(request)
+            mail_subject = 'Activate your Mur_Mys account'
+            message = render_to_string('main/email/account_activation_email.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': user.profile.email_token,
+            })
+            
+            email = EmailMessage(
+                mail_subject, message, to=[user.email]
+            )
+            email.content_subtype = "html"
+            email.send()
+            
+            return render(request, 'main/register_confirm.html')
     else:
         form = UserRegistrationForm()
     return render(request, 'main/register.html', {'form': form})
@@ -154,10 +216,6 @@ def get_interview_details(request, interview_id):
         return JsonResponse(data)
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
-    
-
-
-
 
 @login_required
 def profileView(request):
@@ -180,3 +238,84 @@ def profileView(request):
     }
     return render(request, 'main/profile.html', context)
 
+from django.contrib.auth.models import User
+
+@anonymousRequired
+def activate_account(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+        
+        # Check if the token matches
+        if str(user.profile.email_token) == str(token):
+            user.is_active = True
+            user.profile.email_verified = True
+            user.save()
+            user.profile.save()
+            
+            # Auto-login the user
+            login(request, user)
+            return render(request, 'main/activation_success.html')
+        else:
+            return render(request, 'main/activation_invalid.html')
+            
+    except Exception as e:
+        user = None
+        return render(request, 'main/activation_invalid.html')
+    
+
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.models import User
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import EmailMessage
+
+@require_POST
+def resend_activation(request):
+    data = json.loads(request.body)
+    username = data.get('username')
+    
+    try:
+        user = User.objects.get(username=username)
+        
+        if user.is_active:
+            return JsonResponse({
+                'success': False,
+                'message': 'Account is already active'
+            })
+            
+        # Send verification email
+        current_site = get_current_site(request)
+        mail_subject = 'Activate your Mur_Mys account'
+        message = render_to_string('main/email/account_activation_email.html', {
+            'user': user,
+            'domain': current_site.domain,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'token': user.profile.email_token,
+        })
+        
+        email = EmailMessage(
+            mail_subject, message, to=[user.email]
+        )
+        email.content_subtype = "html"
+        email.send()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Activation email sent successfully!'
+        })
+        
+    except User.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'User not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': 'Failed to send email'
+        }, status=500)

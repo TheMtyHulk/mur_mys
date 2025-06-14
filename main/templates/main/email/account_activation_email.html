@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Activate Your Account</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #e1e1e1;
+            border-radius: 5px;
+        }
+        .header {
+            text-align: center;
+            padding: 10px;
+            background-color: #1c1b1d;
+            color: #f1edee;
+            border-radius: 4px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Mur_Mys Account Activation</h2>
+        </div>
+        <div class="content">
+            <p>Hi {{ user.username }},</p>
+            <p>Thank you for registering with Mur_Mys. Please click on the button below to activate your account:</p>
+            <p style="text-align: center;">
+                <a class="button" href="http://{{ domain }}/activate/{{ uid }}/{{ token }}/">
+                    Activate Account
+                </a>
+            </p>
+            <p>If the button above doesn't work, copy and paste this link into your browser:</p>
+            <p>http://{{ domain }}/activate/{{ uid }}/{{ token }}/</p>
+            <p>This link will expire in 24 hours.</p>
+            <p>If you didn't create this account, you can safely ignore this email.</p>
+            <p>Best regards,<br>Mur_Mys Team</p>
+        </div>
+    </div>
+</body>
+</html>

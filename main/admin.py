@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django import forms
-from .models import Murders, Suspects, Investigators, Interviews
-
-
+from .models import Murders, Suspects, Investigators, Interviews, UserProfile
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'email_verified', 'email_token')
+    search_fields = ('user__username', 'user__email')
 @admin.register(Suspects)
 class SuspectsAdmin(admin.ModelAdmin):
     list_display = ('murders','name', 'description', 'age', 'image')
