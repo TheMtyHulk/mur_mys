@@ -89,7 +89,7 @@ WSGI_APPLICATION = 'mur_mys.wsgi.application'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST')  
-EMAIL_PORT = int(os.getenv('EMAIL_PORT'), 465)  # Use 465 for SSL, or 587 for TLS
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '465'))  # Use 465 for SSL, or 587 for TLS
 EMAIL_USE_TLS = False  # TLS typically uses port 587, for port 465 use SSL
 EMAIL_USE_SSL = True   # Add this line when using port 465
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Replace with your email address
