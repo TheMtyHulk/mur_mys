@@ -34,14 +34,13 @@
                 <small class="error">{{ form.password.errors }}</small>
             </div>
             
-            <!-- Remember Me checkbox -->
-            <!-- <div class="form-group">
-                <label class="flex items-center">
-                    <input type="checkbox" name="remember_me" class="checkbox checkbox-sm">
-                    <span class="ml-2">Remember me</span>
-                </label>
-            </div> -->
-
+            <!-- Forgot Password link -->
+            <div class="form-group">
+                <div class="text-right">
+                    <a href="{% url 'password_reset' %}" class="text-accent" target="_self">Forgot Password ?</a>
+                </div>
+            </div>
+            
             <div class="form-group">
                 <button type="submit" class="btn btn-accent btn-block my-2">Login</button>
             </div>

@@ -836,4 +836,183 @@ form,
   max-width: 250px !important;
 }
 
+/* Enhanced Password Reset Styling */
+.reset-box {
+  background-color: rgba(28, 27, 29, 0.95);
+  border: 2px solid #55E6C1;
+  border-radius: 0;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 550px;
+  box-shadow: 0 0 30px rgba(85, 230, 193, 0.3), inset 0 0 15px rgba(28, 27, 29, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+.reset-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.reset-box::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(28, 27, 29, 0.1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.reset-heading {
+  font-size: 3.5rem !important;
+  margin-bottom: 1.5rem;
+  text-shadow: 0.15rem 0 0 #ea36af, -0.15rem 0 0 #55E6C1;
+  letter-spacing: 0.15em;
+  line-height: 1;
+  text-transform: uppercase;
+  animation-duration: 0.01s;
+  animation-name: textflicker;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.reset-status h3 {
+  font-size: 1.8rem;
+  color: #fff;
+  text-shadow: 0.1rem 0 0.1rem #ea36af, -0.1rem 0 0.1rem #55E6C1;
+  margin: 1rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.reset-instructions {
+  margin-bottom: 2rem;
+  letter-spacing: 0.05em;
+}
+
+.reset-instructions p {
+  margin-bottom: 1rem;
+  line-height: 1.8;
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.reset-form {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 3;
+}
+
+.reset-form .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: #fff;
+  letter-spacing: 0.1em;
+  text-shadow: 0.06rem 0 0.06rem #ea36af, -0.06rem 0 0.06rem #55E6C1;
+}
+
+.reset-form .custom-input {
+  width: 100% !important;
+  background-color: rgba(28, 27, 29, 0.7) !important;
+  border: 2px solid #872af4 !important;
+  color: white !important;
+  margin: 0.5rem auto !important;
+  padding: 0.8rem !important;
+  font-size: 1.2rem !important;
+  letter-spacing: 0.05em !important;
+  text-shadow: 0 0 5px rgba(85, 230, 193, 0.5) !important;
+}
+
+.reset-form .custom-input:focus {
+  border-color: #55E6C1 !important;
+  box-shadow: 0 0 8px rgba(85, 230, 193, 0.8) !important;
+}
+
+.form-actions {
+  margin: 2rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.form-actions .btn-accent {
+  font-size: 1rem;
+  padding: 0.8rem 1.5rem;
+  min-width: 200px;
+  background-color: #872af4 !important;
+  text-shadow: 0.05rem 0 0.05rem #000;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: none !important;
+  border-bottom: 4px solid rgba(0,0,0,0.3) !important;
+  box-shadow: 0 0 10px rgba(135, 42, 244, 0.5);
+}
+
+.form-actions .btn-accent:hover {
+  background-color: #9a4df5 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(135, 42, 244, 0.7);
+}
+
+.form-footer {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.back-link {
+  color: #55E6C1;
+  text-shadow: 0.05rem 0 0.05rem #ea36af;
+  text-decoration: none;
+  transition: all 0.3s;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.back-link:hover {
+  color: #ea36af;
+  text-shadow: 0.05rem 0 0.05rem #55E6C1;
+}
+
+.password-help {
+  background: rgba(28, 27, 29, 0.5);
+  padding: 1rem;
+  border: 1px solid #55E6C1;
+  margin: 1rem 0;
+  text-align: left;
+  font-size: 0.8rem;
+  color: #f1edee;
+}
+
+/* Mobile Responsive Adjustments */
+@media all and (max-width: 480px) {
+  .reset-heading {
+    font-size: 1.5rem !important;
+  }
+  
+  .custom-input {
+    width: 95% !important;
+    font-size: 0.9rem !important;
+  }
+}
+
 

@@ -319,3 +319,90 @@ def resend_activation(request):
             'success': False,
             'message': 'Failed to send email'
         }, status=500)
+    
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.models import User
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
+def passwordReset(request):
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = User.objects.get(email=email)
+                if not user.is_active:
+                    messages.error(request, 'Account is not active. Please activate your account first.')
+                    return render(request, 'main/password_reset.html', {'form': form})
+                
+                # Generate token
+                token = default_token_generator.make_token(user)
+                current_site = get_current_site(request)
+                
+                # Create email
+                mail_subject = 'Reset your Mur_Mys password'
+                message = render_to_string('main/email/password_reset_email.html', {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token': token,
+                })
+                
+                email = EmailMessage(
+                    mail_subject, message, to=[user.email]
+                )
+                email.content_subtype = "html"
+                email.send()
+                
+                return render(request, 'main/password_reset_sent.html')
+            except User.DoesNotExist:
+                # Don't reveal that the user doesn't exist
+                return render(request, 'main/password_reset_sent.html')
+    else:
+        form = PasswordResetForm()
+    
+    return render(request, 'main/password_reset.html', {'form': form})
+
+def passwordResetConfirm(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+        print(f"Found user: {user.username}")  # Debug info
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist) as e:
+        user = None
+        print(f"Error finding user: {str(e)}")  # Debug info
+    
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                try:
+                    # Save the form which updates the password
+                    user = form.save()
+                    
+                    # Force user to re-authenticate with new password
+                    from django.contrib.auth import update_session_auth_hash
+                    update_session_auth_hash(request, user)
+                    
+                    # messages.success(request, 'Your password has been successfully reset. You can now log in with your new password.')
+                    # print("Password successfully reset")  # Debug info
+                    # return redirect('login')
+                    return render(request, 'main/password_reset_success.html')
+                except Exception as e:
+                    print(f"Error saving password: {str(e)}")  # Debug info
+                    form.add_error(request, f"An error occurred: {str(e)}")
+            else:
+                print(f"Form errors: {form.errors}")  # Debug info
+        else:
+            form = SetPasswordForm(user)
+        return render(request, 'main/password_reset_confirm.html', {'form': form})
+    else:
+        print("Invalid token or user is None")  # Debug info
+        return render(request, 'main/password_reset_invalid.html')

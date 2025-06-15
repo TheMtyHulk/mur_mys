@@ -29,3 +29,9 @@ urlpatterns = [
     ), name='password_change'),
    
 ]
+
+urlpatterns+=[
+    path('password-reset/', views.passwordReset, name='password_reset'),
+    path('password-reset/confirm/<uidb64>/<token>/', views.passwordResetConfirm, name='password_reset_confirm'),
+    
+    ]
