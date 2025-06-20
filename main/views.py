@@ -1,43 +1,31 @@
-from django.shortcuts import render,get_object_or_404
-from django.http import HttpResponse
-from django.contrib.auth import authenticate, login,logout
-from django.shortcuts import redirect
-from .forms import LoginForm, UserRegistrationForm, ProfileUpdateForm
-from helpers.decorators import anonymousRequired
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse, JsonResponse
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Suspects, Investigators,Murders,Interviews
-from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from django.contrib.auth.tokens import default_token_generator
 from django.contrib.admin.views.decorators import staff_member_required
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
+from django.views.decorators.http import require_POST
+from django.contrib import messages
+
+from .forms import LoginForm, UserRegistrationForm, ProfileUpdateForm
+from .models import Suspects, Investigators, Murders, Interviews
+from helpers.decorators import anonymousRequired
+import json
+
 
 def index(request):
     murders = Murders.objects.all()  
     return render(request, 'main/index.html', {'murders': murders}) 
 
 
-#login view
-# @anonymousRequired
-# def loginView(request):
-#     if request.method == 'POST':
-#         form = LoginForm(request.POST)
-#         if form.is_valid():
-#             username = form.cleaned_data['username']
-#             password = form.cleaned_data['password']
-#             user = authenticate(request, username=username, password=password)
-
-#             if user is not None:
-#                 # if user.is_superuser:
-#                 #     # User is active, log them in
-#                 #     login(request, user)
-#                 #     return redirect('admin:index')
-#                 login(request, user)
-#                 return redirect('index')
-#             else:
-#                 form.add_error('password', 'Invalid username or password')
-#     else:
-#         form = LoginForm()
-#     return render(request, 'main/login.html', {'form': form})
-from django.contrib import messages
-
+@anonymousRequired
 def loginView(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -62,25 +50,7 @@ def loginView(request):
         form = LoginForm()
     return render(request, 'main/login.html', {'form': form})
 
-#register user view
-# @anonymousRequired
-# def registerView(request):
-#     if request.method == 'POST':
-#         form = UserRegistrationForm(request.POST)
-#         if form.is_valid():
-#             user = form.save()
-#             login(request, user)
-#             return redirect('index')
-#     else:
-#         form = UserRegistrationForm()
-#     return render(request, 'main/register.html', {'form': form})
 
-
-from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.core.mail import EmailMessage
 
 @anonymousRequired
 def registerView(request):
@@ -141,12 +111,6 @@ def interviewsView(request, murder_id):
         'interviews': interviews,
     }
     return render(request, 'main/interviews.html', context)
-
-
-
-# API views to get suspects and investigators AJAX
-from django.http import JsonResponse
-from django.contrib.admin.views.decorators import staff_member_required
 
 
 @staff_member_required
@@ -264,15 +228,6 @@ def activate_account(request, uidb64, token):
         return render(request, 'main/activation_invalid.html')
     
 
-import json
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.contrib.auth.models import User
-from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.core.mail import EmailMessage
 
 @require_POST
 def resend_activation(request):
@@ -320,16 +275,7 @@ def resend_activation(request):
             'message': 'Failed to send email'
         }, status=500)
     
-from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.contrib.auth.models import User
-from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
-from django.shortcuts import render, redirect
-from django.contrib import messages
+
 
 def passwordReset(request):
     if request.method == 'POST':
