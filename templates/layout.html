@@ -27,7 +27,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{% block twitter_title %}mur_mys{% endblock %}">
   <meta name="twitter:description" content="{% block twitter_description %}mur_mys - Your entertainment destination{% endblock %}">
-  <meta name="twitter:image" content="{% block twitter_image %}{% static 'main/images/twitter-image.jpg' %}{% endblock %}">
+  {% comment %} <meta name="twitter:image" content="{% block twitter_image %}{% static 'main/images/twitter-image.jpg' %}{% endblock %}"> {% endcomment %}
   
   <!-- Canonical URL -->
   <link rel="canonical" href="{{ request.build_absolute_uri }}">
@@ -42,10 +42,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" type="text/css" href="{% static 'main/css/style.css' %}">
   
-  <!-- Favicon with multiple sizes -->
+  {% comment %} <!-- Favicon with multiple sizes -->
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'main/images/favicon-32x32.png' %}">
   <link rel="icon" type="image/png" sizes="16x16" href="{% static 'main/images/favicon-16x16.png' %}">
-  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'main/images/apple-touch-icon.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'main/images/apple-touch-icon.png' %}"> {% endcomment %}
   
   <!-- Structured data -->
   <script type="application/ld+json">
